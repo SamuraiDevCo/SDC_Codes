@@ -1,8 +1,8 @@
 # SDC_Codes
 
-This script allows your server to give back to the community and get citizens to invite their buddies! This script can give rewards as in items and money for inviting friends. It also allows for your server to create Server Wide Codes that can be claimed by players. All friend rewards are saved via Database to make sure that the players always get their reward! There is a configureable time limit for new players to avoid the abuse of using everyones friend code!
+This script allows your server to give back to the community and get citizens to invite their buddies! This script can give rewards as in items and money for inviting friends. It also allows for your server to create Server Wide Codes that can be claimed by players. All friend rewards are saved via Database to make sure that the players always get their reward! There is a configurable time limit for new players to avoid the abuse of using everyones friend code!
 
-# Demo: 
+# Demo: https://youtu.be/DgFRsaK7RrM
 
 # Requirements
 - ESX LEGACY OR QBCORE
