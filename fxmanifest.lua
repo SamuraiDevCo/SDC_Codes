@@ -3,7 +3,7 @@ games { 'gta5' }
 
 author 'HoboDevCo#3011'
 description 'SDC | Codes Script'
-version '1.0.0'
+version '1.0.1'
 
 ui_page 'src/html/index.html'
 files {
