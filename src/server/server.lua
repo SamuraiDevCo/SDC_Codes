@@ -59,7 +59,7 @@ CreateThread(function()
     while true do
         if loadedTables then
             for k,v in pairs(pIdentToId) do
-                MySQL.update('UPDATE sd_codes SET playtime = ? WHERE (`identifier`) = (?)', {pCodes_identifier[ident].Playtime, ident}) 
+                MySQL.update('UPDATE sd_codes SET playtime = ? WHERE (`identifier`) = (?)', {pCodes_identifier[k].Playtime, k}) 
             end
         end
         Wait(SDC.UpdatePlayersInDatabase*60000)
@@ -71,8 +71,8 @@ CreateThread(function()
         if loadedTables then
             for k,v in pairs(pIdentToId) do
                 if GetPlayerName(v) then
-                    pCodes_identifier[ident].Playtime = pCodes_identifier[ident].Playtime + 1
-                    TriggerClientEvent("SDCC:Client:UpdateToCode", v, {Code = pCodes_identifier[ident].Code, Uses = pCodes_identifier[ident].Uses, Playtime = pCodes_identifier[ident].Playtime, UsedCodes = pCodes_identifier[ident].UsedCodes, UsedFCodes = pCodes_identifier[ident].UsedFCodes, RewardsToClaim = pCodes_identifier[ident].RewardsToClaim})
+                    pCodes_identifier[k].Playtime = pCodes_identifier[k].Playtime + 1
+                    TriggerClientEvent("SDCC:Client:UpdateToCode", v, {Code = pCodes_identifier[k].Code, Uses = pCodes_identifier[k].Uses, Playtime = pCodes_identifier[k].Playtime, UsedCodes = pCodes_identifier[k].UsedCodes, UsedFCodes = pCodes_identifier[k].UsedFCodes, RewardsToClaim = pCodes_identifier[k].RewardsToClaim})
                 else
                     pIdentToId[k] = nil
                 end
