@@ -43,6 +43,7 @@ CreateThread(function()
         for i=1, #temp_cCodes do
             cCodes2[temp_cCodes[i].code] = {RewardData = json.decode(temp_cCodes[i].reward_data)}
         end
+        cCodes = cCodes2
     end
 
     loadedTables = true
