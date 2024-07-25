@@ -3,13 +3,7 @@ games { 'gta5' }
 
 author 'HoboDevCo#3011'
 description 'SDC | Codes Script'
-version '1.0.2'
-
-ui_page 'src/html/index.html'
-files {
-	'src/html/index.html',
-	'src/html/init.js',
-}
+version '1.0.3'
 
 shared_script {
     "@ox_lib/init.lua",
@@ -30,9 +24,7 @@ server_scripts {
 
 escrow_ignore {
     "config/config.lua",
-    "config/lang.lua",
     "src/client/client.lua",
-    "src/client/client_customize_me.lua",
     "src/server/server.lua",
     "src/server/server_customize_me.lua",
 }

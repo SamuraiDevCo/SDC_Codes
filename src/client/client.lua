@@ -42,9 +42,7 @@ RegisterCommand('codes', function()
 						{label = SDC.Lang.CodeUses, value = myCode.Uses}
 					},
 					onSelect = function()
-						SendNUIMessage({
-							code = myCode.Code,
-						})
+						lib.setClipboard(myCode.Code)
 						TriggerEvent("SDCC:Client:Notification", SDC.Lang.CopiedCode, "success")
 					end,
 				},

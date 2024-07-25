@@ -54,5 +54,15 @@ SDC.Lang = {
     DuplicateCode = "There Is Already A Code Made With This Name!",
     CodeCreated = "Code Created",
     CodesCommandSuggestion = "Used To Share/Claim Friend Codes And Claim Server Wide Codes For Rewards!",
-    CodeCreatorCommandSuggestion = "Used To Create Server Wide Codes (Admins Only)"
+    CodeCreatorCommandSuggestion = "Used To Create Server Wide Codes (Admins Only)",
+    PlayerInfo = "Player Info",
+    Name = "Name",
+    Id = "Id",
+    Identifier = "Identifier",
+    CodeInfo = "Code Info",
+    RewardInfo = "Reward Info",
+    PlayerClaimedFriendCode = "Player Claimed Friend Code",
+    PlayerClaimedServerCode = "Player Claimed Server Code",
+    PlayerClaimedRewards = "Player Claimed Rewards",
+    PlayerCreatedCode = "Player Created Code"
 }

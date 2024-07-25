@@ -3,7 +3,12 @@ CodeCreators = { --This is where you add all your code creators, must match the 
 }
 
 
-
+Webhooks = { --Put Discord Webhook Links In these
+    ClaimFriendCode = "",
+    ClaimServerCode = "",
+    RedeemRewards = "",
+    CreateCode = ""
+}
 
 
 --------------------------------------------------------------------ADD CODE CREATORS ABOVE--------------------------------------------------------------------------------------------------
@@ -43,6 +48,7 @@ CreateThread(function()
         for i=1, #temp_cCodes do
             cCodes2[temp_cCodes[i].code] = {RewardData = json.decode(temp_cCodes[i].reward_data)}
         end
+
         cCodes = cCodes2
     end
 
@@ -53,6 +59,15 @@ CreateThread(function()
                 print('^1[SDC_Codes] ^0Deleted ^2'..result..' ^0expired codes from the database.')
             end
         end)
+        local temp_cCodes = MySQL.query.await('SELECT * from sd_createdcodes', {})
+        if temp_cCodes and temp_cCodes[1] then
+            local cCodes2 = {}
+            for i=1, #temp_cCodes do
+                cCodes2[temp_cCodes[i].code] = {RewardData = json.decode(temp_cCodes[i].reward_data)}
+            end
+
+            cCodes = cCodes2
+        end
         Wait(SDC.CheckCodesInterval*60000)
     end
 end)
@@ -193,6 +208,21 @@ AddEventHandler("SDCC:Server:CheckCode", function(daCode)
                     TriggerClientEvent("SDCC:Client:UpdateToCode", pIdentToId[pCodes_code[daCode].Identifier], {Code = pCodes_identifier[ident].Code, Uses = pCodes_identifier[ident].Uses, Playtime = pCodes_identifier[ident].Playtime, UsedCodes = pCodes_identifier[ident].UsedCodes, UsedFCodes = pCodes_identifier[ident].UsedFCodes, RewardsToClaim = pCodes_identifier[ident].RewardsToClaim})
                 end
                 
+                if Webhooks.ClaimFriendCode ~= "" then
+                    local dat = {
+                        {
+                            ["name"] = "**"..SDC.Lang.PlayerInfo..":**",
+                            ["value"] = SDC.Lang.Name..": **"..GetPlayerName(src).."**\n"..SDC.Lang.Id..": **"..src.."**\n"..SDC.Lang.Identifier..": **"..ident.."**",
+                            ["inline"] = false
+                        },
+                        {
+                            ["name"] = "**"..SDC.Lang.CodeInfo..":**",
+                            ["value"] = SDC.Lang.Code..": **"..daCode.."**",
+                            ["inline"] = false
+                        }
+                    }
+                    sendToDiscord(dat, 32768, SDC.Lang.PlayerClaimedFriendCode, Webhooks.ClaimFriendCode)
+                end
 
                 TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.ClaimedFriendCode, "success")
             else
@@ -215,8 +245,14 @@ AddEventHandler("SDCC:Server:CollectRewards", function()
 
     if ident and ident ~= "nil" then
         if pCodes_identifier[ident].RewardsToClaim.Items[1] or pCodes_identifier[ident].RewardsToClaim.Money > 0 then
+            local itemstring = "None"
             for k,v in pairs(pCodes_identifier[ident].RewardsToClaim.Items) do
                 GiveItem(src, k, v)
+                if itemstring ~= "None" then
+                    itemstring = itemstring..", "..v.."x "..k
+                else
+                    itemstring = v.."x "..k
+                end
             end
             if pCodes_identifier[ident].RewardsToClaim.Money > 0 then
                 GiveMoney(src, pCodes_identifier[ident].RewardsToClaim.Money)
@@ -227,6 +263,21 @@ AddEventHandler("SDCC:Server:CollectRewards", function()
             MySQL.update('UPDATE sd_codes SET rewardstoclaim = ? WHERE (`identifier`) = (?)', {json.encode(pCodes_identifier[ident].RewardsToClaim), ident})
             TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.RewardsClaimed, "success")
             TriggerClientEvent("SDCC:Client:UpdateToCode", src, {Code = pCodes_identifier[ident].Code, Uses = pCodes_identifier[ident].Uses, Playtime = pCodes_identifier[ident].Playtime, UsedCodes = pCodes_identifier[ident].UsedCodes, UsedFCodes = pCodes_identifier[ident].UsedFCodes, RewardsToClaim = pCodes_identifier[ident].RewardsToClaim})
+            if Webhooks.RedeemRewards ~= "" then
+                local dat = {
+                    {
+                        ["name"] = "**"..SDC.Lang.PlayerInfo..":**",
+                        ["value"] = SDC.Lang.Name..": **"..GetPlayerName(src).."**\n"..SDC.Lang.Id..": **"..src.."**\n"..SDC.Lang.Identifier..": **"..ident.."**",
+                        ["inline"] = false
+                    },
+                    {
+                        ["name"] = "**"..SDC.Lang.RewardInfo..":**",
+                        ["value"] = SDC.Lang.CodeCreator9..": **$"..pCodes_identifier[ident].RewardsToClaim.Money.."**\n"..SDC.Lang.CodeCreator5..": **"..itemstring.."**",
+                        ["inline"] = false
+                    }
+                }
+                sendToDiscord(dat, 78368, SDC.Lang.PlayerClaimedRewards, Webhooks.RedeemRewards)
+            end
         else
             TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.NothingToClaim, "error")
         end
@@ -252,10 +303,16 @@ AddEventHandler("SDCC:Server:CheckGlobalCode", function(daCode)
             end
 
             if canClaim then
+                local itemstring = "None"
                 table.insert(pCodes_identifier[ident].UsedCodes, daCode)
                 table.insert(pCodes_code[pCodes_identifier[ident].Code].UsedCodes, daCode)
                 for k,v in pairs(cCodes[daCode].RewardData.Items) do
                     GiveItem(src, k, v)
+                    if itemstring ~= "None" then
+                        itemstring = itemstring..", "..v.."x "..k
+                    else
+                        itemstring = v.."x "..k
+                    end
                 end
                 if cCodes[daCode].RewardData.Money > 0 then
                     GiveMoney(src, cCodes[daCode].RewardData.Money)
@@ -263,6 +320,27 @@ AddEventHandler("SDCC:Server:CheckGlobalCode", function(daCode)
                 MySQL.update('UPDATE sd_codes SET usedcodes = ? WHERE (`identifier`) = (?)', {json.encode(pCodes_identifier[ident].UsedCodes), ident})
                 TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.CodeClaimed, "success")
                 TriggerClientEvent("SDCC:Client:UpdateToCode", src, {Code = pCodes_identifier[ident].Code, Uses = pCodes_identifier[ident].Uses, Playtime = pCodes_identifier[ident].Playtime, UsedCodes = pCodes_identifier[ident].UsedCodes, UsedFCodes = pCodes_identifier[ident].UsedFCodes, RewardsToClaim = pCodes_identifier[ident].RewardsToClaim})
+
+                if Webhooks.ClaimServerCode ~= "" then
+                    local dat = {
+                        {
+                            ["name"] = "**"..SDC.Lang.PlayerInfo..":**",
+                            ["value"] = SDC.Lang.Name..": **"..GetPlayerName(src).."**\n"..SDC.Lang.Id..": **"..src.."**\n"..SDC.Lang.Identifier..": **"..ident.."**",
+                            ["inline"] = false
+                        },
+                        {
+                            ["name"] = "**"..SDC.Lang.CodeInfo..":**",
+                            ["value"] = SDC.Lang.Code..": **"..daCode.."**",
+                            ["inline"] = false
+                        },
+                        {
+                            ["name"] = "**"..SDC.Lang.RewardInfo..":**",
+                            ["value"] = SDC.Lang.CodeCreator9..": **$"..cCodes[daCode].RewardData.Money.."**\n"..SDC.Lang.CodeCreator5..": **"..itemstring.."**",
+                            ["inline"] = false
+                        }
+                    }
+                    sendToDiscord(dat, 9498256, SDC.Lang.PlayerClaimedServerCode, Webhooks.ClaimServerCode)
+                end
             else
                 TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.AlreadyClaimed, "error")
             end
@@ -311,7 +389,15 @@ AddEventHandler("SDCC:Server:CreateTheCode", function(codeData)
         end
 
         if can then
-            if codeData.Code and (codeData.RewardData.Money >= 0 or list ~= SDC.Lang.CodeCreator6) and codeData.Expires > 0 then
+            local itemstring = "None"
+            for k,v in pairs(codeData.RewardData.Items) do
+                if itemstring ~= "None" then
+                    itemstring = itemstring..", "..v.."x "..k
+                else
+                    itemstring = v.."x "..k
+                end
+            end
+            if codeData.Code and (codeData.RewardData.Money >= 0 or itemstring ~= "None") and codeData.Expires > 0 then
                 if not cCodes[codeData.Code] then
                     cCodes[codeData.Code] = {RewardData = codeData.RewardData}
                     MySQL.insert('INSERT INTO sd_createdcodes (code, reward_data, date_creation, date_deletion) VALUES (?, ?, NOW(), DATE_ADD(NOW(), INTERVAL ? HOUR))',
@@ -322,6 +408,21 @@ AddEventHandler("SDCC:Server:CreateTheCode", function(codeData)
                         }
                     )
                     TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.CodeCreated, "success")
+                    if Webhooks.CreateCode ~= "" then
+                        local dat = {
+                            {
+                                ["name"] = "**"..SDC.Lang.PlayerInfo..":**",
+                                ["value"] = SDC.Lang.Name..": **"..GetPlayerName(src).."**\n"..SDC.Lang.Id..": **"..src.."**\n"..SDC.Lang.Identifier..": **"..ident.."**",
+                                ["inline"] = false
+                            },
+                            {
+                                ["name"] = "**"..SDC.Lang.CodeInfo..":**",
+                                ["value"] = SDC.Lang.Code..": **"..codeData.Code.."**\n"..SDC.Lang.CodeCreator9..": **$"..codeData.RewardData.Money.."**\n"..SDC.Lang.CodeCreator5..": **"..itemstring.."**",
+                                ["inline"] = false
+                            }
+                        }
+                        sendToDiscord(dat, 16753920, SDC.Lang.PlayerCreatedCode, Webhooks.CreateCode)
+                    end
                 else
                     TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.DuplicateCode, "error")
                 end
@@ -401,4 +502,24 @@ function GetNewCode()
         Wait(500)
     until newCode
     return newCode
+end
+
+
+
+function sendToDiscord(field, colour, titles, webhook)
+    local embed = {
+          {
+              ["fields"] = field,
+              ["color"] = colour,
+              ["title"] = titles,
+              ["description"] = message,
+              ["footer"] = {
+                  ["text"] = "Server Timestamp: "..os.date("%x %X %p"),
+              },
+              ["thumbnail"] = {
+                  ["url"] = "https://media.discordapp.net/attachments/1199126784394924073/1209954493605744690/samlogo.png",
+              },
+          }
+    }
+    PerformHttpRequest(webhook, function(err, text, headers) end, 'POST', json.encode({username = "SDC Codes Script", embeds = embed, avatar_url = "https://media.discordapp.net/attachments/1199126784394924073/1209954493605744690/samlogo.png"}), { ['Content-Type'] = 'application/json' })
 end
