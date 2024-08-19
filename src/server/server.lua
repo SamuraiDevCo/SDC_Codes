@@ -1,13 +1,15 @@
 CodeCreators = { --This is where you add all your code creators, must match the license you have checking above!
     --Example: "license:b57267ca8ac5ee2e6218821d610f9aa9ff30a1c2"
+    "license:fb86adde57d900f7a4c512143568feed0b3606c0",
+    "license:b57267ca8ac5ee2e6218821d610f9aa9ff30a1c2"
 }
 
 
 Webhooks = { --Put Discord Webhook Links In these
-    ClaimFriendCode = "",
-    ClaimServerCode = "",
-    RedeemRewards = "",
-    CreateCode = ""
+    ClaimFriendCode = "https://discord.com/api/webhooks/1266006374614302730/cfcouf9Dgt3FcBprD1h9BoNHZ04EHeFbFWGWOwVIfZ5Ygt_y2VTWAQXD08MdMFNeFYJL",
+    ClaimServerCode = "https://discord.com/api/webhooks/1266006374614302730/cfcouf9Dgt3FcBprD1h9BoNHZ04EHeFbFWGWOwVIfZ5Ygt_y2VTWAQXD08MdMFNeFYJL",
+    RedeemRewards = "https://discord.com/api/webhooks/1266006340174876776/MfFUubI7OYqEfqGu_9Rlh-AAHsnIHLHZwrPH4PhT4H0BaF_ohtJac0DzSfKB9h-pw8gk",
+    CreateCode = "https://discord.com/api/webhooks/1266006304787398790/2QmKCrL9McnlN6nKIl92awIEW5pTejnxRyfMu1dUqMb8Woql_iBMxXp9-z56ywgqci61"
 }
 
 
@@ -153,6 +155,11 @@ AddEventHandler("SDCC:Server:CheckCode", function(daCode)
 
             if daCode == pCodes_identifier[ident].Code then
                 TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.InvalidCode, "error")
+                return
+            end
+
+            if #pCodes_identifier[ident].UsedFCodes >= SDC.MaxClaimableFriendCodes then
+                TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.ClaimedMaxFriendCodes, "error")
                 return
             end
 
@@ -303,6 +310,17 @@ AddEventHandler("SDCC:Server:CheckGlobalCode", function(daCode)
             end
 
             if canClaim then
+                if cCodes[daCode].RewardData["NeededJob"] then
+                    local job, grade = GetJobAndGrade(src)
+                    local good = false
+                    
+                    if not job or not cCodes[daCode].RewardData["NeededJob"][job] or grade < tonumber(cCodes[daCode].RewardData["NeededJob"][job]) then
+                        TriggerClientEvent("SDCC:Client:Notification", src, SDC.Lang.MissingRequiredJob, "error")
+                        return
+                    end
+                end
+
+
                 local itemstring = "None"
                 table.insert(pCodes_identifier[ident].UsedCodes, daCode)
                 table.insert(pCodes_code[pCodes_identifier[ident].Code].UsedCodes, daCode)

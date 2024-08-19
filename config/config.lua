@@ -8,6 +8,7 @@ SDC.NotificationSystem = "framework" -- ['mythic_old', 'mythic_new', 'tnotify', 
 
 SDC.FriendCodeLength = 6 --The Length Of Friend Codes (MAX IS 12)
 SDC.ClaimFriendCodePlaytimeMax = 120 --This is how long a player has to claim friend codes before it locks (In Mins)
+SDC.MaxClaimableFriendCodes = 3 --This is how many friend codes can be claimed in total!
 
 SDC.CheckCodesInterval = 5 --This is how often it will check outdated codes(In Mins)
 SDC.UpdatePlayersInDatabase = 5 --This is how often it will update the database with player playtime(In Mins)

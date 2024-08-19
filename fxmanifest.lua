@@ -3,7 +3,7 @@ games { 'gta5' }
 
 author 'HoboDevCo#3011'
 description 'SDC | Codes Script'
-version '1.0.3'
+version '1.0.4'
 
 shared_script {
     "@ox_lib/init.lua",

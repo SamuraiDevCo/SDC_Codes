@@ -160,6 +160,55 @@ AddEventHandler("SDCC:Client:OpenCodeCreator", function()
 		})
 	end
 
+	local joblist = nil
+	if newCodeData.RewardData.NeededJob then
+		local gotone = false
+		for k,v in pairs(newCodeData.RewardData.NeededJob) do
+			gotone = true
+			if joblist then
+				joblist = joblist..", "..k.."("..v..")"
+			else
+				joblist = k.."("..v..")"
+			end
+		end
+		if not gotone then
+			newCodeData.RewardData["NeededJob"] = nil
+			joblist = nil
+		end
+	end
+	if not joblist then
+		joblist = SDC.Lang.CodeCreator18
+	end
+	table.insert(tab, {
+		title = SDC.Lang.CodeCreator19,
+		description = joblist,
+		icon = 'building-user',
+		onSelect = function()
+			local input = lib.inputDialog(SDC.Lang.CodeCreator19, {
+				{type = 'input', label = SDC.Lang.CodeCreator20, required = true},
+				{type = 'number', label = SDC.Lang.CodeCreator21, description = SDC.Lang.CodeCreator22, required = true},
+			})
+
+			if input and input[1] and input[2] then
+				if input[2] == -1 then
+					if newCodeData.RewardData["NeededJob"] and newCodeData.RewardData["NeededJob"][input[1]] then
+						newCodeData.RewardData["NeededJob"][input[1]] = nil
+					end
+				else
+					if newCodeData.RewardData["NeededJob"] then
+						newCodeData.RewardData["NeededJob"][input[1]] = input[2]
+					else
+						newCodeData.RewardData["NeededJob"] = {[input[1]] = input[2]}
+					end
+				end
+				TriggerEvent("SDCC:Client:OpenCodeCreator")
+			else
+				TriggerEvent("SDCC:Client:OpenCodeCreator")
+			end
+		end,
+	})
+
+
 	local list = nil
 	for k,v in pairs(newCodeData.RewardData.Items) do
 		if list then

@@ -26,3 +26,21 @@ function GiveMoney(src, amt)
         xPlayer.addAccountMoney('money', amt)
     end
 end
+
+function GetJobAndGrade(src)
+    if SDC.Framework == "qb-core" then
+        local Player = QBCore.Functions.GetPlayer(src)
+        if Player.PlayerData and Player.PlayerData.job then
+            return Player.PlayerData.job.name, Player.PlayerData.job.grade.level
+        else
+            return nil
+        end
+    elseif SDC.Framework == "esx" then
+        local xPlayer = ESX.GetPlayerFromId(src)
+        if xPlayer.job and xPlayer.job.name then
+            return xPlayer.job.name, xPlayer.job.grade
+        else
+            return nil
+        end
+    end
+end
